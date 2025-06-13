@@ -3,37 +3,38 @@ import React, { useEffect, useState } from 'react';
 interface User {
     id: number;
     name: string;
-    nickname: string;
+    email: string;
 }
 
-const UserList: React.FC = () => {
+function App() {
     const [users, setUsers] = useState<User[]>([]);
-
-    const fetchUsers = async () => {
-        const res = await fetch('http://localhost:8080/users', {
-            credentials: 'include',
-            headers: {
-                'Authorization': 'Basic ' + btoa('admin:admin123')
-            }
-        });
-        const data = await res.json();
-        setUsers(data);
-    };
+    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
-        fetchUsers();
+        fetch('http://localhost:8080/api/users')
+            .then(res => {
+                if (!res.ok) {
+                    throw new Error('서버에서 사용자 데이터를 불러오는 데 실패했습니다.');
+                }
+                return res.json();
+            })
+            .then(data => setUsers(data))
+            .catch(err => setError(err.message));
     }, []);
 
     return (
         <div>
-            <h2>사용자 닉네임 목록</h2>
+            <h1>사용자 목록</h1>
+            {error && <p style={{ color: 'red' }}>{error}</p>}
             <ul>
                 {users.map(user => (
-                    <li key={user.id}>{user.nickname}</li>
+                    <li key={user.id}>
+                        이름: {user.name}, 이메일: {user.email}
+                    </li>
                 ))}
             </ul>
         </div>
     );
-};
+}
 
-export default UserList;
+export default App;

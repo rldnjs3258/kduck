@@ -1,48 +1,74 @@
 import React, { useState } from 'react';
 
 interface UserFormProps {
-    onUserAdded: () => void;  // 사용자 추가 후 호출되는 함수
+    onUserAdded: () => void; // 사용자가 추가된 후 부모 컴포넌트에 알리기 위한 콜백
 }
 
 const UserForm: React.FC<UserFormProps> = ({ onUserAdded }) => {
     const [name, setName] = useState('');
+    const [email, setEmail] = useState('');
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!name.trim()) return;
+        setLoading(true);
+        setError(null);
 
         try {
-            const res = await fetch('http://localhost:8080/users', {
+            const response = await fetch('/api/users', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': 'Basic ' + btoa('admin:admin123'),
                 },
-                credentials: 'include',
-                body: JSON.stringify({ nickname: name }),  // ✅ 여기 중요!
+                body: JSON.stringify({ name, email }),
             });
 
-            if (res.ok) {
-                setName('');
-                onUserAdded(); // 부모에게 알려서 목록 갱신 요청
-            } else {
-                alert('사용자 추가 실패');
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || '사용자 생성 실패');
             }
-        } catch (error) {
-            alert('에러 발생: ' + error);
+
+            setName('');
+            setEmail('');
+            onUserAdded();
+        } catch (err: any) {
+            setError(err.message || '알 수 없는 오류');
+        } finally {
+            setLoading(false);
         }
     };
 
-
     return (
-        <form onSubmit={handleSubmit}>
-            <input
-                type="text"
-                placeholder="이름 입력"
-                value={name}
-                onChange={e => setName(e.target.value)}
-            />
-            <button type="submit">추가</button>
+        <form onSubmit={handleSubmit} style={{ marginBottom: '20px' }}>
+            <div>
+                <label>
+                    이름:{' '}
+                    <input
+                        type="text"
+                        value={name}
+                        onChange={e => setName(e.target.value)}
+                        required
+                        placeholder="이름 입력"
+                    />
+                </label>
+            </div>
+            <div>
+                <label>
+                    이메일:{' '}
+                    <input
+                        type="email"
+                        value={email}
+                        onChange={e => setEmail(e.target.value)}
+                        required
+                        placeholder="이메일 입력"
+                    />
+                </label>
+            </div>
+            <button type="submit" disabled={loading}>
+                {loading ? '등록 중...' : '등록'}
+            </button>
+            {error && <p style={{ color: 'red' }}>오류: {error}</p>}
         </form>
     );
 };

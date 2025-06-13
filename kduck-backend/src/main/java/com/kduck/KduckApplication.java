@@ -1,4 +1,4 @@
-package com.kduck.kduck;
+package com.kduck; // com.kduck 경로 이하 다 스캔
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
