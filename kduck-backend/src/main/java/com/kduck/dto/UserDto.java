@@ -46,6 +46,7 @@ public class UserDto {
         private boolean isAnonymous;
         private LocalDateTime createdAt;
         private LocalDateTime updatedAt;
+        private String password;
 
         public Response() {}
 
@@ -63,6 +64,11 @@ public class UserDto {
 
         public String getProfileImageUrl() { return profileImageUrl; }
         public void setProfileImageUrl(String profileImageUrl) { this.profileImageUrl = profileImageUrl; }
+
+        public String getPassword() {return password;}
+        public void setPassword(String password) {
+            this.password = password;
+        }
 
         public boolean isAnonymous() { return isAnonymous; }
         public void setAnonymous(boolean anonymous) { isAnonymous = anonymous; }

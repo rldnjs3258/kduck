@@ -40,6 +40,7 @@ public class UserMapper {
             user.setNickname(rs.getString("nickname"));
             user.setProfileImageUrl(rs.getString("profile_image_url"));
             user.setAnonymous(rs.getBoolean("is_anonymous"));
+            user.setPassword(rs.getString("password"));
 
             Timestamp createdAt = rs.getTimestamp("created_at");
             if (createdAt != null) {
@@ -99,10 +100,13 @@ public class UserMapper {
 
     public Optional<UserDto.Response> findByEmail(String email) {
         String sql = "SELECT * FROM users WHERE email = ?";
+//        System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+//        System.out.println(sql);
         try {
             UserDto.Response user = jdbcTemplate.queryForObject(sql, userRowMapper, email);
             return Optional.ofNullable(user);
         } catch (Exception e) {
+//            System.out.println("None");
             return Optional.empty();
         }
     }
